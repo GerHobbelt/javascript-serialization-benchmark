@@ -1,4 +1,6 @@
+import { TEMP_DIR } from '../_root';
 import { LOGGING } from '../config';
+import { existsSync, mkdirSync } from 'fs';
 
 export function secondsFrom(startTime: number): number {
   const now = Date.now();
@@ -18,14 +20,13 @@ export function secondsFromNanoTime(startTime: number): number {
 export function bytesToHumanReadable(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  const num = (bytes / Math.pow(1024, i));
+  const num = bytes / Math.pow(1024, i);
   return `${num.toFixed(2)} ${['B', 'kB', 'MB', 'GB', 'TB'][i]}`;
 }
 
 export function bytesToMb(bytes: number): number {
   return bytes / (1024 * 1024);
 }
-
 
 export function log(...args) {
   if (LOGGING) {
@@ -34,7 +35,7 @@ export function log(...args) {
 }
 
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(() => resolve(), ms));
+  return new Promise((resolve) => setTimeout(() => resolve(), ms));
 }
 
 export function runGarbageCollection(): void {
@@ -43,5 +44,8 @@ export function runGarbageCollection(): void {
   }
 }
 
-
-
+export function createTmpFolder(): void {
+  if (!existsSync(TEMP_DIR)) {
+    mkdirSync(TEMP_DIR);
+  }
+}

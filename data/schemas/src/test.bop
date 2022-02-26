@@ -1,0 +1,5 @@
+message Item { 1-> int32 x; 2 -> float64 y; 3 -> float64 z; }
+
+message Data { // Field names cannot be the same as their enclosing type.
+  1 -> Item[] Items;
+}

@@ -1,0 +1,11 @@
+package gen
+
+type Item struct {
+	x uint32
+	y float64
+    z float64
+}
+
+type Data struct {
+	items []Item
+}

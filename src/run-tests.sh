@@ -24,3 +24,9 @@ npm start 'testAvroAvscUnmapped'
 npm start 'testJsBinUnmapped'
 npm start 'testJsBinJsonUnmapped'
 npm start 'testBsonUnmapped'
+
+
+npm start 'testFoundationdbTupleUnmapped'
+npm start 'testBebop'
+npm start 'testBebopUnmapped'
+npm start 'testColfer'

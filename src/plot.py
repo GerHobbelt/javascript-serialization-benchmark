@@ -2,9 +2,10 @@ import math
 
 import matplotlib.pyplot as plt
 import json as json
+from os import stat,mkdir
 
 INPUT_FILE = 'tmp/plot.json'
-OUTPUT_DIR = '../img'
+OUTPUT_DIR = 'img'
 OUTPUT_NAME = 'tmp.svg'
 
 PRINT_SIZE_RATIO = False
@@ -16,7 +17,6 @@ X_MIN_VALUE = 0.5
 X_MAX_VALUE = 2000
 ALLOWED_LABELS = []
 
-
 def main():
     global OUTPUT_NAME
     global ALLOWED_LABELS
@@ -24,12 +24,59 @@ def main():
     global PRINT_SIZE_RATIO
     global X_MIN_VALUE
 
+
+
+    # create img directory if it didn't exist
+    try:
+        stat(OUTPUT_DIR)
+    except:
+        mkdir(OUTPUT_DIR)
+
     # # Hack to print size ratios at 10 MB (ignore displayed image)
     X_MIN_VALUE = 10
     PRINT_SIZE_RATIO = True
     plot()
     PRINT_SIZE_RATIO = False
     X_MIN_VALUE = 0.5
+
+    plot()
+    #
+    # FoundationdbTuple
+    OUTPUT_NAME='bench-FoundationdbTuple.svg'
+    ALLOWED_LABELS = [
+     #   "FoundationdbTuple",
+        "FoundationdbTuple (unmapped)"
+    ]
+    plot()
+
+    #
+    # testColfer
+    OUTPUT_NAME='bench-testColfer.svg'
+    ALLOWED_LABELS = [
+        "testColfer",
+    ]
+    plot()
+
+    #
+    # Bebop
+    OUTPUT_NAME='bench-Bebop.svg'
+    ALLOWED_LABELS = [
+        "Bebop",
+        "Bebop (unmapped)"
+    ]
+    plot()
+
+    #
+    # FoundationdbTuple
+    OUTPUT_NAME='bench-new-algos.svg'
+    ALLOWED_LABELS = [
+      #  "FoundationdbTuple",
+        "FoundationdbTuple (unmapped)",
+        "Bebop",
+        "Bebop (unmapped)",
+        "testColfer"
+    ]
+    plot()
 
     # Main test
     OUTPUT_NAME='bench-full.svg'
@@ -42,9 +89,14 @@ def main():
         "PROTOBUF JS",
         "PROTOBUF Pbf",
         "PROTOBUF mixed",
-
+       # "FoundationdbTuple",
+        "FoundationdbTuple (unmapped)",
+        "Bebop",
+        "Bebop (unmapped)"
+       # "testColfer" # colfer is too bad
     ]
-    plot()
+    plot();
+    
     #
     # Protocol buffers
     OUTPUT_NAME='bench-protobuf.svg'
@@ -104,32 +156,35 @@ def main():
     plot()
 
 def plot():
-    columns = 3
-    if ALLOWED_LABELS:
-        columns = math.ceil(len(ALLOWED_LABELS) / 2)
-    if PRINT_SIZE_RATIO:
-        global X_MIN_VALUE
-        X_MIN_VALUE = 10
-        ax = plot_x('JSON', 'encodedSize', 1, 'Encoded size', True)
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.38), ncol=columns, fancybox=True)
-    else:
-        if ONLY_RATIO:
-            plt.figure(figsize=(10, 4.15))
-            ax = plot_x('JSON', 'encodedTime', 1, 'Encode time (ratio)', False)
+    try:
+        columns = 3
+        if ALLOWED_LABELS:
+            columns = math.ceil(len(ALLOWED_LABELS) / 2)
+        if PRINT_SIZE_RATIO:
+            global X_MIN_VALUE
+            X_MIN_VALUE = 10
+            ax = plot_x('JSON', 'encodedSize', 1, 'Encoded size', True)
             ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.38), ncol=columns, fancybox=True)
-            plot_x('JSON', 'decodedTime', 2, 'Decode time (ratio)', False)
         else:
-            plt.figure(figsize=(10, 8.5))
-            ax = plot_x(None, 'encodedTime', 1, 'Encode time (s)', True)
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=columns, fancybox=True)
-            plot_x('JSON', 'encodedTime', 2, 'Encode time (ratio)', False)
-            plot_x(None, 'decodedTime', 3, 'Decode time (s)', True)
-            plot_x('JSON', 'decodedTime', 4, 'Decode time (ratio)', False)
+            if ONLY_RATIO:
+                plt.figure(figsize=(10, 4.15))
+                ax = plot_x('JSON', 'encodedTime', 1, 'Encode time (ratio)', False)
+                ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.38), ncol=columns, fancybox=True)
+                plot_x('JSON', 'decodedTime', 2, 'Decode time (ratio)', False)
+            else:
+                plt.figure(figsize=(10, 8.5))
+                ax = plot_x(None, 'encodedTime', 1, 'Encode time (s)', True)
+                ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=columns, fancybox=True)
+                plot_x('JSON', 'encodedTime', 2, 'Encode time (ratio)', False)
+                plot_x(None, 'decodedTime', 3, 'Decode time (s)', True)
+                plot_x('JSON', 'decodedTime', 4, 'Decode time (ratio)', False)
 
-    if SAVE_IMAGE:
-        plt.savefig(f'{OUTPUT_DIR}/{OUTPUT_NAME}')
-    else:
-        plt.show()
+        if SAVE_IMAGE:
+            plt.savefig(f'{OUTPUT_DIR}/{OUTPUT_NAME}')
+        else:
+            plt.show()
+    except:
+        print("can't create "+OUTPUT_NAME+" missing labels")
 
 
 with open(INPUT_FILE) as json_file:

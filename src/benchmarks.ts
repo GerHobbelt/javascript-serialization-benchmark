@@ -7,17 +7,20 @@ import Pbf from 'pbf';
 import protobufJs from 'protobufjs';
 import protons from 'protons';
 import { ROOT_DIR } from './_root';
-import ProtoGoogleSchema from './data/google-protobuf_pb';
-import ProtoPbfSchema from './data/pbf_pb';
+import ProtoGoogleSchema from '../data/schemas/out/google-protobuf_pb';
+import ProtoPbfSchema from '../data/schemas/out/pbf_pb';
 import { benchmark, BenchmarkResult } from './utils/helper';
 import bser from 'bser';
+import * as tuple from 'fdb-tuple';
+import { Data as BebopSchema } from '../data/schemas/out/bebopSchema';
+import { gen as colfer } from '../data/schemas/out/Colfer';
 
 export function testJson(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: data => JSON.stringify(data),
-    decode: data => JSON.parse(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => JSON.stringify(data),
+    decode: (data) => JSON.parse(data),
+    sampleDecoded: (data) => data.items[0],
     encoding: 'utf8',
   });
 }
@@ -25,9 +28,9 @@ export function testJson(testData: any): Promise<BenchmarkResult> {
 export function testJsonUnmapped(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: data => JSON.stringify(data),
-    decode: data => JSON.parse(data),
-    sampleDecoded: data => data[0],
+    encode: (data) => JSON.stringify(data),
+    decode: (data) => JSON.parse(data),
+    sampleDecoded: (data) => data[0],
     encoding: 'utf8',
   });
 }
@@ -53,8 +56,7 @@ function createAvroSchemaBase(): any {
         },
       },
     ],
-  }
-
+  };
 }
 
 const AvroJsSchema = avro.parse(createAvroSchemaBase());
@@ -63,9 +65,9 @@ export function testAvroJs(testData: any): Promise<BenchmarkResult> {
   const Schema = AvroJsSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.toBuffer(data),
-    decode: data => Schema.fromBuffer(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.toBuffer(data),
+    decode: (data) => Schema.fromBuffer(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -73,16 +75,14 @@ const AVSC_DOUBLE = Infinity;
 const AVSC_INT = 0;
 
 const AvroAvscSchema = avsc.Type.forValue({
-  items: [
-    { x: AVSC_INT, y: AVSC_DOUBLE, z: AVSC_DOUBLE }
-  ]
+  items: [{ x: AVSC_INT, y: AVSC_DOUBLE, z: AVSC_DOUBLE }],
 });
 
 const AvroAvscOptionalSchema = avsc.Type.forValue({
   items: [
     { x: AVSC_INT, y: AVSC_DOUBLE, z: AVSC_DOUBLE },
-    { x: null, y: null, z: null }
-  ]
+    { x: null, y: null, z: null },
+  ],
 });
 
 const AvroAvscUnmappedSchema = avsc.Type.forValue([[AVSC_DOUBLE]]);
@@ -91,9 +91,9 @@ export function testAvroAvsc(testData: any): Promise<BenchmarkResult> {
   const Schema = AvroAvscSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.toBuffer(data),
-    decode: data => Schema.fromBuffer(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.toBuffer(data),
+    decode: (data) => Schema.fromBuffer(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -101,9 +101,9 @@ export function testAvroAvscOptional(testData: any): Promise<BenchmarkResult> {
   const Schema = AvroAvscOptionalSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.toBuffer(data),
-    decode: data => Schema.fromBuffer(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.toBuffer(data),
+    decode: (data) => Schema.fromBuffer(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -111,9 +111,9 @@ export function testAvroAvscUnmapped(testData: any): Promise<BenchmarkResult> {
   const Schema = AvroAvscUnmappedSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.toBuffer(data),
-    decode: data => Schema.fromBuffer(data),
-    sampleDecoded: data => data[0],
+    encode: (data) => Schema.toBuffer(data),
+    decode: (data) => Schema.fromBuffer(data),
+    sampleDecoded: (data) => data[0],
   });
 }
 
@@ -127,25 +127,23 @@ export function testJsBin(testData: any): Promise<BenchmarkResult> {
   const Schema = JsBinSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
 const JsBinOptionalSchema = new JsBin.Type({
-  items: [
-    { 'x?': 'int', 'y?': 'float', 'z?': 'float' },
-  ],
+  items: [{ 'x?': 'int', 'y?': 'float', 'z?': 'float' }],
 });
 
 export function testJsBinOptional(testData: any): Promise<BenchmarkResult> {
   const Schema = JsBinOptionalSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -155,9 +153,9 @@ export function testJsBinUnmapped(testData: any): Promise<BenchmarkResult> {
   const Schema = JsBinUnmappedSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => data[0],
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data[0],
   });
 }
 
@@ -167,22 +165,22 @@ export function testJsBinJsonUnmapped(testData: any): Promise<BenchmarkResult> {
   const Schema = JsBinJsonUnmappedSchema;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => data[0],
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data[0],
   });
 }
 
 let ProtobufJsSchema: any = null;
 
 export async function testProtoJs(testData: any): Promise<BenchmarkResult> {
-  if (!ProtobufJsSchema) ProtobufJsSchema = await protobufJs.load(`${ROOT_DIR}/data/test.proto`);
+  if (!ProtobufJsSchema) ProtobufJsSchema = await protobufJs.load(`${ROOT_DIR}/../data/schemas/src/test.proto`);
   const Schema = ProtobufJsSchema.Items;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data).finish(),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => Schema.encode(data).finish(),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -190,16 +188,16 @@ export async function testProtoPbf(testData: any): Promise<BenchmarkResult> {
   const Schema = ProtoPbfSchema.Items;
   return benchmark({
     data: testData,
-    encode: data => {
+    encode: (data) => {
       const pbf = new Pbf();
       Schema.write(data, pbf);
       return pbf.finish();
     },
-    decode: data => {
+    decode: (data) => {
       const pbf = new Pbf(data);
       return Schema.read(pbf);
     },
-    sampleDecoded: data => data.items[0],
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
@@ -209,9 +207,9 @@ export function testProtoGoogle(testData: any): Promise<BenchmarkResult> {
   const ItemWrap = Schema.Item;
   return benchmark({
     data: testData,
-    encode: data => {
+    encode: (data) => {
       const itemsWrap = new ItemsWrap();
-      const itemWraps = data.items.map(item => {
+      const itemWraps = data.items.map((item) => {
         const itemWrap = new ItemWrap();
         itemWrap.setX(item.x);
         itemWrap.setY(item.y);
@@ -221,63 +219,98 @@ export function testProtoGoogle(testData: any): Promise<BenchmarkResult> {
       itemsWrap.setItemsList(itemWraps);
       return itemsWrap.serializeBinary();
     },
-    decode: data => ItemsWrap.deserializeBinary(data),
+    decode: (data) => ItemsWrap.deserializeBinary(data),
     // sampleDecoded: data => data.itemsList[0],
-    sampleDecoded: data => data.getItemsList()[0].toObject(),
+    sampleDecoded: (data) => data.getItemsList()[0].toObject(),
   });
 }
 
-const ProtobufProtonsSchema = protons(fs.readFileSync(`${ROOT_DIR}/data/test.proto`));
+const ProtobufProtonsSchema = protons(fs.readFileSync(`${ROOT_DIR}/../data/schemas/src/test.proto`));
 
 export function testProtoProtons(testData: any): Promise<BenchmarkResult> {
   const Schema = ProtobufProtonsSchema.Items;
   return benchmark({
     data: testData,
-    encode: data => Schema.encode(data),
-    decode: data => Schema.decode(data),
-    sampleDecoded: data => JSON.parse(JSON.stringify(data.items[0])),
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => JSON.parse(JSON.stringify(data.items[0])),
   });
 }
 
-const ProtoMixedEncodeSchema = protons(fs.readFileSync(`${ROOT_DIR}/data/test.proto`));
+const ProtoMixedEncodeSchema = protons(fs.readFileSync(`${ROOT_DIR}/../data/schemas/src/test.proto`));
 let ProtoMixedDecodeSchema: any = null;
-
 
 export async function testProtoMixed(testData: any): Promise<BenchmarkResult> {
   const EncodeSchema = ProtoMixedEncodeSchema.Items;
-  if (!ProtoMixedDecodeSchema) ProtoMixedDecodeSchema = await protobufJs.load(`${ROOT_DIR}/data/test.proto`);
+  if (!ProtoMixedDecodeSchema) ProtoMixedDecodeSchema = await protobufJs.load(`${ROOT_DIR}/../data/schemas/src/test.proto`);
   const DecodeSchema = ProtoMixedDecodeSchema.Items;
   return benchmark({
     data: testData,
-    encode: data => EncodeSchema.encode(data),
-    decode: data => DecodeSchema.decode(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => EncodeSchema.encode(data),
+    decode: (data) => DecodeSchema.decode(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
 export function testBson(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: data => BSON.serialize(data),
-    decode: data => BSON.deserialize(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => BSON.serialize(data),
+    decode: (data) => BSON.deserialize(data),
+    sampleDecoded: (data) => data.items[0],
   });
 }
 
 export function testBsonUnmapped(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: data => BSON.serialize(data),
-    decode: data => BSON.deserialize(data),
-    sampleDecoded: data => data[0],
+    encode: (data) => BSON.serialize(data),
+    decode: (data) => BSON.deserialize(data),
+    sampleDecoded: (data) => data[0],
   });
 }
 
 export function testBser(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: data => bser.dumpToBuffer(data),
-    decode: data => bser.loadFromBuffer(data),
-    sampleDecoded: data => data.items[0],
+    encode: (data) => bser.dumpToBuffer(data),
+    decode: (data) => bser.loadFromBuffer(data),
+    sampleDecoded: (data) => data.items[0],
+  });
+}
+
+export function testFoundationdbTuple(testData: any): Promise<BenchmarkResult> {
+  const Schema = tuple;
+  const benchmarkData = {
+    data: testData,
+    encode: (data) => Schema.pack(data),
+    decode: (data) => Schema.unpack(data),
+    sampleDecoded: (data) => data[0],
+  };
+  return benchmark(benchmarkData);
+}
+
+export function testBebop(testData: any): Promise<BenchmarkResult> {
+  const Schema = BebopSchema;
+  return benchmark({
+    data: testData,
+    encode: (data) => Schema.encode(data),
+    decode: (data) => Schema.decode(data),
+    sampleDecoded: (data) => data[0],
+  });
+}
+
+export function testColfer(testData: any): Promise<BenchmarkResult> {
+  const Schema = colfer;
+  const testDataItems = { items: testData.items.map((e) => new Schema.Item(e)) };
+  const testDataColfer = new Schema.Data(testDataItems);
+  return benchmark({
+    data: testDataColfer,
+    encode: (data) => data.marshal(),
+    decode: (data) => {
+      const decodedData = new Schema.Data();
+      return decodedData.unmarshal(data);
+    },
+    sampleDecoded: (data) => data[0],
   });
 }

@@ -1,6 +1,6 @@
 import * as bench from './benchmarks';
 import { runTest } from './utils/helper';
-
+import { createTmpFolder } from './utils/utils';
 
 const TESTS = {
   testJson: () => runTest('JSON', ({ data }) => bench.testJson(data), 298),
@@ -10,7 +10,6 @@ const TESTS = {
   testAvroJs: () => runTest('AVRO JS', ({ data }) => bench.testAvroJs(data), 372),
   testAvroAvsc: () => runTest('AVRO Avsc', ({ data }) => bench.testAvroAvsc(data), 372),
   testAvroAvscOptional: () => runTest('AVRO Avsc (optional)', ({ data }) => bench.testAvroAvscOptional(data), 372),
-
 
   testProtoJs: () => runTest('PROTOBUF JS', ({ data }) => bench.testProtoJs(data), 153),
   testProtoPbf: () => runTest('PROTOBUF Pbf', ({ data }) => bench.testProtoPbf(data), 372),
@@ -28,12 +27,21 @@ const TESTS = {
   testJsBinUnmapped: () => runTest('JSBIN (unmapped)', ({ unmappedData }) => bench.testJsBinUnmapped(unmappedData), 372),
   testJsBinJsonUnmapped: () => runTest('JSBIN JSON (unmapped)', ({ unmappedData }) => bench.testJsBinJsonUnmapped(unmappedData), 372),
   testBsonUnmapped: () => runTest('BSON (unmapped)', ({ unmappedData }) => bench.testBsonUnmapped(unmappedData), 21),
-};
 
+  //testFoundationdbTuple: () => runTest('FoundationdbTuple', ({ data }) => bench.testFoundationdbTuple(data.items.map(e=>Object.entries(e))), 67),
+  testFoundationdbTupleUnmapped: () =>
+    runTest('FoundationdbTuple (unmapped)', ({ unmappedData }) => bench.testFoundationdbTuple(unmappedData), 67),
+
+  testBebop: () => runTest('Bebop', ({ data }) => bench.testBebop(data), 302),
+  testBebopUnmapped: () => runTest('Bebop (unmapped)', ({ unmappedData }) => bench.testBebop(unmappedData), 302),
+
+  testColfer: () => runTest('testColfer', ({ data }) => bench.testColfer(data), 0.5),
+};
 
 (async () => {
   const args = process.argv.slice(3);
   console.log('Arguments', args);
+  createTmpFolder();
   if (args.length) {
     for (const arg of args) {
       if (TESTS[arg]) {
@@ -71,4 +79,12 @@ async function runDefault() {
   await TESTS.testJsBinUnmapped();
   await TESTS.testJsBinJsonUnmapped();
   await TESTS.testBsonUnmapped();
+
+  //await TESTS.testFoundationdbTuple();
+  await TESTS.testFoundationdbTupleUnmapped();
+
+  await TESTS.testBebop();
+  await TESTS.testBebopUnmapped();
+
+  await TESTS.testColfer();
 }

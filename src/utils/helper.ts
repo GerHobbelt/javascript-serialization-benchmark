@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { ROOT_DIR } from '../_root';
+import { ROOT_DIR, TEMP_DIR } from '../_root';
 import {
   FAST_SPEED_LIMIT_MB,
   MAX_SIZE_IN_MB,
@@ -10,8 +10,7 @@ import {
 } from '../config';
 import { bytesToMb, getNanoTime, log, runGarbageCollection, secondsFromNanoTime, sleep } from './utils';
 
-const PLOT_FILE_PATH = `${ROOT_DIR}/tmp/plot.json`;
-
+const PLOT_FILE_PATH = `${TEMP_DIR}/plot.json`;
 
 export async function runTest(label: string, fn: (payload) => Promise<BenchmarkResult>, limit: number) {
   console.log(`TEST ${label}`);
@@ -30,10 +29,10 @@ export async function runTest(label: string, fn: (payload) => Promise<BenchmarkR
   while (true) {
     let fractionIncrement = sizeInMb > FAST_SPEED_LIMIT_MB ? SPEED_FRACTION_FAST : SPEED_FRACTION_NORMAL;
     const dataIncrement = unmappedData
-    // Increase size by fraction limit
-    .slice(0, Math.round(unmappedData.length / fractionIncrement))
-    // Slightly alter data to make sure each value is unique
-    .map(value => [value[0] + 1, value[1] + 1 / 3, value[2] + 1 / 3]);
+      // Increase size by fraction limit
+      .slice(0, Math.round(unmappedData.length / fractionIncrement))
+      // Slightly alter data to make sure each value is unique
+      .map((value) => [value[0] + 1, value[1] + 1 / 3, value[2] + 1 / 3]);
     unmappedData = [...unmappedData, ...dataIncrement];
     // Ugly performance optimization to avoid calculating object size
     // on large payloads (which can be slow)
@@ -78,7 +77,7 @@ export interface BenchmarkArgs {
   data: any;
   sampleDecoded: (data) => any;
   decode: (data) => any;
-  baseline?: BenchmarkResult,
+  baseline?: BenchmarkResult;
   encoding?: BufferEncoding;
 }
 
@@ -98,32 +97,23 @@ export async function benchmark(args: BenchmarkArgs): Promise<BenchmarkResult> {
   const encodedSize: number = bytesToMb(encoded.length);
 
   // // Saving and loading data from disk does not seem to affect performance much
-  // fs.writeFileSync(`${ROOT_DIR}/tmp/tmp`, encoded);
-  // const loaded = fs.readFileSync(`${ROOT_DIR}/tmp/tmp`, args.encoding ? args.encoding : undefined);
-  // const decoded = args.decode(loaded);
+  fs.writeFileSync(`${TEMP_DIR}/tmp`, encoded);
 
   runGarbageCollection();
-  await sleep(5);
+  await sleep(5); // re-enable this
   start = getNanoTime();
   const decoded = args.decode(encoded);
   const decodedTime = secondsFromNanoTime(start);
 
   const sample = args.sampleDecoded(decoded);
-
   const out = {
     encodedTime,
     decodedTime,
     encodedSize,
   };
-  log(
-    out.encodedTime.toFixed(2),
-    out.decodedTime.toFixed(2),
-    out.encodedSize.toFixed(2),
-    sample,
-  );
+  log(out.encodedTime.toFixed(2), out.decodedTime.toFixed(2), out.encodedSize.toFixed(2), sample);
   return out;
 }
-
 
 export function loadPlotData(): any {
   if (!fs.existsSync(PLOT_FILE_PATH)) {
@@ -135,7 +125,7 @@ export function loadPlotData(): any {
 export function savePlotData(results: BenchmarkResult[], xValues: number[], label: string) {
   const plot = loadPlotData();
   const y = {};
-  results.forEach(result => {
+  results.forEach((result) => {
     Object.entries(result).forEach(([k, v]) => {
       y[k] = y[k] || [];
       y[k].push(v);
@@ -148,5 +138,3 @@ export function savePlotData(results: BenchmarkResult[], xValues: number[], labe
   };
   fs.writeFileSync(PLOT_FILE_PATH, JSON.stringify(plot, null, 2));
 }
-
-
