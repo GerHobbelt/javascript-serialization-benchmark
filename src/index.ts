@@ -5,6 +5,8 @@ import { createTmpFolder } from './utils/utils';
 const TESTS = {
   testJson: () => runTest('JSON', ({ data }) => bench.testJson(data), 298),
 
+  testV8Serialize: () => runTest('V8 Serialize', ({ data }) => bench.testV8Serialize(data), 298),
+
   testBson: () => runTest('BSON', ({ data }) => bench.testBson(data), 21),
 
   testAvroJs: () => runTest('AVRO JS', ({ data }) => bench.testAvroJs(data), 372),

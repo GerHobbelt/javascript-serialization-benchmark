@@ -35,6 +35,16 @@ export function testJsonUnmapped(testData: any): Promise<BenchmarkResult> {
   });
 }
 
+export function testV8Serialize(testData: any): Promise<BenchmarkResult> {
+  const v8 = require('v8');
+  return benchmark({
+    data: testData,
+    encode: (data) => v8.serialize(data),
+    decode: (data) => v8.deserialize(data),
+    sampleDecoded: (data) => data.items[0],
+  });
+}
+
 function createAvroSchemaBase(): any {
   return {
     name: 'items',
