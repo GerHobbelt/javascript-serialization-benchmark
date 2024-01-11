@@ -7,7 +7,7 @@ const TESTS = {
   testV8: () => runTest('V8', ({ data }) => bench.testV8(data), 298),
   testMsgPack: () => runTest('MsgPack', ({ data }) => bench.testMsgPack(data), 298),
 
-  testV8Serialize: () => runTest('V8 Serialize', ({ data }) => bench.testV8Serialize(data), 298),
+  testV8Serialize: () => runTest('V8 Serialize', ({ data }) => bench.testV8(data), 298),
 
   testBson: () => runTest('BSON', ({ data }) => bench.testBson(data), 21),
 
@@ -72,8 +72,8 @@ async function runDefault() {
   await TESTS.testProtoJs();
   await TESTS.testProtoPbf();
   await TESTS.testProtoGoogle();
-  await TESTS.testProtoProtons();
-  await TESTS.testProtoMixed();
+  //await TESTS.testProtoProtons();
+  //await TESTS.testProtoMixed();
 
   await TESTS.testJsBin();
   await TESTS.testJsBinOptional();
