@@ -4,6 +4,8 @@ import { createTmpFolder } from './utils/utils';
 
 const TESTS = {
   testJson: () => runTest('JSON', ({ data }) => bench.testJson(data), 298),
+  testV8: () => runTest('V8', ({ data }) => bench.testV8(data), 298),
+  testMsgPack: () => runTest('MsgPack', ({ data }) => bench.testMsgPack(data), 298),
 
   testV8Serialize: () => runTest('V8 Serialize', ({ data }) => bench.testV8Serialize(data), 298),
 
@@ -58,6 +60,8 @@ const TESTS = {
 async function runDefault() {
   console.log('Running default');
   await TESTS.testJson();
+  await TESTS.testV8();
+  await TESTS.testMsgPack();
 
   await TESTS.testBson();
 

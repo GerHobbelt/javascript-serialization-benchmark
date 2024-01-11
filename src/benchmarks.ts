@@ -1,3 +1,4 @@
+import v8 from 'v8';
 import avro from 'avro-js';
 import avsc from 'avsc';
 import BSON from 'bson';
@@ -5,6 +6,7 @@ import fs from 'fs';
 import JsBin from 'js-binary';
 import Pbf from 'pbf';
 import protobufJs from 'protobufjs';
+import * as msgpack from "@msgpack/msgpack";
 import protons from 'protons';
 import { ROOT_DIR } from './_root';
 import ProtoGoogleSchema from '../data/schemas/out/google-protobuf_pb';
@@ -35,13 +37,39 @@ export function testJsonUnmapped(testData: any): Promise<BenchmarkResult> {
   });
 }
 
-export function testV8Serialize(testData: any): Promise<BenchmarkResult> {
-  const v8 = require('v8');
+export function testV8(testData: any): Promise<BenchmarkResult> {
   return benchmark({
     data: testData,
-    encode: (data) => v8.serialize(data),
-    decode: (data) => v8.deserialize(data),
-    sampleDecoded: (data) => data.items[0],
+    encode: data => v8.serialize(data),
+    decode: data => v8.deserialize(data),
+    sampleDecoded: data => data.items[0],
+  });
+}
+
+export function testV8Unmapped(testData: any): Promise<BenchmarkResult> {
+  return benchmark({
+    data: testData,
+    encode: data => JSON.stringify(data),
+    decode: data => JSON.parse(data),
+    sampleDecoded: data => data[0],
+  });
+}
+
+export function testMsgPack(testData: any): Promise<BenchmarkResult> {
+  return benchmark({
+    data: testData,
+    encode: data => msgpack.encode(data),
+    decode: data => msgpack.decode(data),
+    sampleDecoded: data => data.items[0],
+  });
+}
+
+export function testMsgPackUnmapped(testData: any): Promise<BenchmarkResult> {
+  return benchmark({
+    data: testData,
+    encode: data => msgpack.encode(data),
+    decode: data => msgpack.decode(data),
+    sampleDecoded: data => data[0],
   });
 }
 

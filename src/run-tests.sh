@@ -2,7 +2,9 @@
 
 npm start 'testJson'
 
-npm start 'testV8Serialize'
+npm start 'testMsgPack'
+
+npm start 'testV8'
 
 npm start 'testBson'
 
@@ -26,7 +28,6 @@ npm start 'testAvroAvscUnmapped'
 npm start 'testJsBinUnmapped'
 npm start 'testJsBinJsonUnmapped'
 npm start 'testBsonUnmapped'
-
 
 npm start 'testFoundationdbTupleUnmapped'
 npm start 'testBebop'

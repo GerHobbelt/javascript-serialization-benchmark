@@ -81,6 +81,8 @@ def main():
     # Main test
     OUTPUT_NAME='bench-full.svg'
     ALLOWED_LABELS = [
+        "V8",
+        "MsgPack",
         "JSON",
         "JSBIN",
         "V8 Serialize",
@@ -102,6 +104,8 @@ def main():
     # Protocol buffers
     OUTPUT_NAME='bench-protobuf.svg'
     ALLOWED_LABELS = [
+        "V8",
+        "MsgPack",
         "JSON",
         "PROTOBUF JS",
         "PROTOBUF Pbf",
@@ -126,6 +130,8 @@ def main():
     # Avro extra
     OUTPUT_NAME='bench-avro-extra.svg'
     ALLOWED_LABELS = [
+        "V8",
+        "MsgPack",
         "JSON",
         "JSON (unmapped)",
         "AVRO Avsc",
@@ -137,6 +143,8 @@ def main():
     # BSON extra
     OUTPUT_NAME='bench-bson-extra.svg'
     ALLOWED_LABELS = [
+        "V8",
+        "MsgPack",
         "JSON",
         "JSON (unmapped)",
         "BSON",
@@ -147,6 +155,8 @@ def main():
     # JSBIN extra
     OUTPUT_NAME='bench-jsbin-extra.svg'
     ALLOWED_LABELS = [
+        "V8",
+        "MsgPack",
         "JSON",
         "JSON (unmapped)",
         "JSBIN",
